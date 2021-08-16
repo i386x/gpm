@@ -905,7 +905,7 @@ static int M_wacom(Gpm_Event *state, unsigned char *data)
    } else {                                               /* Relative Mode */
       /* Treshold; if greather then treat tool as first time in proximity */
       if( abs(x-ox)>(wmaxx/wcmodell[WacomModell].treshold) 
-       || abs(y-oy)>(wmaxy/wcmodell[WacomModell].treshold) ) ox=x; oy=y;
+       || abs(y-oy)>(wmaxy/wcmodell[WacomModell].treshold) ) { ox=x; oy=y; }
 
       state->dx= (x-ox) / (wmaxx / win.ws_col / wcmodell[WacomModell].treshold);
       state->dy= (y-oy) / (wmaxy / win.ws_row / wcmodell[WacomModell].treshold);

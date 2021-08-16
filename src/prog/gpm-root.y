@@ -555,12 +555,15 @@ int f_jptty(int mode, DrawItem *self, int uid)
          } /*if*/
          if (ioctl(fd, VT_ACTIVATE, i)<0) {
             gpm_report(GPM_PR_ERR, "%s: %s", consolename,strerror(errno));
+            close(fd);
             return 1;
          } /*if*/
          if (ioctl(fd, VT_WAITACTIVE, i)<0) {
             gpm_report(GPM_PR_ERR, "%s: %s", consolename,strerror(errno));
+            close(fd);
             return 1;
          }
+         close(fd);
       default: return 0;
    }
    return 0; /* silly gcc -Wall */
@@ -586,14 +589,17 @@ int f_mktty(int mode, DrawItem *self, int uid)
          } /*if*/
          if (ioctl(fd, VT_OPENQRY, &vc)<0) {
             gpm_report(GPM_PR_ERR, "%s: %s",consolename, strerror(errno));
+            close(fd);
             return 1;
          } /*if*/
          switch(pid=fork()) {
 	         case -1:
                gpm_report(GPM_PR_ERR, "fork(): %s", strerror(errno));
+               close(fd);
                return 1;
 	         case 0: /* child: exec getty */
 	            sprintf(name,"tty%i",vc);
+                    close(fd);
 	            execl("/sbin/mingetty","mingetty",name,(char *)NULL);
 	            exit(1); /* shouldn't happen */
             default: /* father: jump to the tty */
@@ -601,8 +607,10 @@ int f_mktty(int mode, DrawItem *self, int uid)
                                                                       ,pid,vc);
 	            consolepids[vc]=pid;
 	            sprintf(self->arg,"%i",vc);
+                    close(fd);
 	            return f_jptty(mode,self,uid);
 	      }
+         close(fd);
       default: return 0;
    }
    return 0;

@@ -250,9 +250,9 @@ int Gpm_Open(Gpm_Connect *conn, int flag)
          memcpy(tty, consolename, strlen(consolename)-1);
          sprintf(&tty[strlen(consolename) - 1], "%i", flag);
       } else if (flag==0) { /* use your current vc */ 
-         if (isatty(0)) tty = ttyname(0);             /* stdin */
-         if (!tty && isatty(1)) tty = ttyname(1);     /* stdout */
-         if (!tty && isatty(2)) tty = ttyname(2);     /* stderr */
+         if (isatty(0) && ttyname(0)) tty = strdup(ttyname(0));             /* stdin */
+         if (!tty && isatty(1) && ttyname(1)) tty = strdup(ttyname(1));     /* stdout */
+         if (!tty && isatty(2) && ttyname(2)) tty = strdup(ttyname(2));     /* stderr */
          if (tty == NULL) {
             gpm_report(GPM_PR_ERR,"checking tty name failed");
             goto err;
@@ -373,10 +373,12 @@ int Gpm_Open(Gpm_Connect *conn, int flag)
 #endif
 
    }
+   if (tty) free(tty);
    return gpm_fd;
 
   /*....................................... Error: free all memory */
    err:
+   if (tty) free(tty);
    if (gpm_is_disabled < 2) /* be quiet if no gpmctl socket found */
       gpm_report(GPM_PR_ERR,"Oh, oh, it's an error! possibly I die! ");
    while(gpm_stack) {

@@ -55,5 +55,6 @@ void gpm_report(int line, const char *file, int stat, const char *text, ... )
    fprintf(stderr,"\n");
 #endif
 
+   va_end(ap);
    if(stat == GPM_STAT_OOPS) exit(1);  /* may a lib function call exit ???? */
 }
